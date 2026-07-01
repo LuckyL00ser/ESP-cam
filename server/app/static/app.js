@@ -26,41 +26,86 @@ let liveMode = true;
 let timeline = [];
 let browseContext = null;
 
-const chartDefaults = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      labels: { color: "#c9d1d9" },
-    },
-  },
-  scales: {
-    x: {
-      ticks: { color: "#8b949e", maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
-      grid: { color: "rgba(48,54,61,0.6)" },
-    },
-    y: {
-      ticks: { color: "#8b949e" },
-      grid: { color: "rgba(48,54,61,0.6)" },
-    },
-  },
-};
-
-function shortLabel(iso, filename) {
-  if (!iso) return filename.slice(-12);
-  const date = new Date(iso);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function isNarrowScreen() {
+  return window.matchMedia("(max-width: 600px)").matches;
 }
 
-function formatTimestamp(iso) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString([], {
+function buildChartDefaults() {
+  const narrow = isNarrowScreen();
+  const tickFontSize = narrow ? 10 : 12;
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: "#c9d1d9",
+          boxWidth: narrow ? 10 : 12,
+          font: { size: tickFontSize },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#8b949e",
+          maxRotation: narrow ? 45 : 0,
+          autoSkip: true,
+          maxTicksLimit: narrow ? 4 : 8,
+          font: { size: tickFontSize },
+        },
+        grid: { color: "rgba(48,54,61,0.6)" },
+      },
+      y: {
+        ticks: {
+          color: "#8b949e",
+          font: { size: tickFontSize },
+        },
+        grid: { color: "rgba(48,54,61,0.6)" },
+      },
+    },
+  };
+}
+
+function parseApiTimestamp(iso) {
+  if (iso == null || iso === "") return null;
+  const text = String(iso).trim();
+  if (!text) return null;
+
+  // API datetimes are UTC but often serialized without a timezone suffix.
+  const hasTimezone = /[zZ]$|[+-]\d{2}:\d{2}$/.test(text);
+  const normalized = hasTimezone ? text : `${text}Z`;
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatLocalDateTime(iso) {
+  const date = parseApiTimestamp(iso);
+  if (!date) return iso ?? "—";
+  return date.toLocaleString(undefined, {
+    year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
   });
+}
+
+function shortLabel(iso, filename) {
+  if (!iso) return filename.slice(-12);
+  const date = parseApiTimestamp(iso);
+  if (!date) return filename.slice(-12);
+  return date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function formatTimestamp(iso) {
+  return formatLocalDateTime(iso);
 }
 
 function row(label, value) {
@@ -129,13 +174,14 @@ function renderCapture(capture) {
   frame.src = `${capture.image_url}?v=${encodeURIComponent(capture.filename)}`;
 
   meta.innerHTML = [
-    row("Capture started", capture.capture_started_at),
-    row("Capture finished", capture.capture_finished_at),
-    row("Received on server", capture.received_at),
+    row("Capture started", formatLocalDateTime(capture.capture_started_at)),
+    row("Capture finished", formatLocalDateTime(capture.capture_finished_at)),
+    row("Received on server", formatLocalDateTime(capture.received_at)),
     row("Capture time", formatMs(capture.capture_time_ms)),
-    row("Total latency", formatMs(capture.total_latency_ms)),
+    row("Capture to save", formatMs(capture.total_latency_ms)),
     row("Detections", capture.detection_count != null ? String(capture.detection_count) : null),
     row("Inference", formatMs(capture.inference_ms)),
+    row("Detected at", formatLocalDateTime(capture.detected_at)),
     row("Model", capture.detector_model),
     row("File", `${capture.filename} (${capture.bytes} bytes)`),
   ].join("");
@@ -206,6 +252,41 @@ function chartClickHandler(_event, elements) {
   }
 }
 
+function applyResponsiveChartLayout() {
+  if (!latencyChart || !detectionChart || !classChart) {
+    return;
+  }
+
+  const narrow = isNarrowScreen();
+  const tickFontSize = narrow ? 10 : 12;
+
+  for (const chart of [latencyChart, detectionChart]) {
+    chart.options.scales.x.ticks.maxTicksLimit = narrow ? 4 : 8;
+    chart.options.scales.x.ticks.maxRotation = narrow ? 45 : 0;
+    chart.options.scales.x.ticks.font = { size: tickFontSize };
+    chart.options.scales.y.ticks.font = { size: tickFontSize };
+    chart.options.plugins.legend.labels.font = { size: tickFontSize };
+    chart.options.plugins.legend.labels.boxWidth = narrow ? 10 : 12;
+    chart.resize();
+    chart.update("none");
+  }
+
+  classChart.options.plugins.legend.labels.font = { size: tickFontSize };
+  classChart.resize();
+  classChart.update("none");
+}
+
+let resizeTimer = null;
+function scheduleChartResize() {
+  if (resizeTimer != null) {
+    clearTimeout(resizeTimer);
+  }
+  resizeTimer = setTimeout(() => {
+    resizeTimer = null;
+    applyResponsiveChartLayout();
+  }, 150);
+}
+
 function initCharts() {
   if (typeof Chart === "undefined") {
     console.warn("Chart.js unavailable; live feed will still work.");
@@ -213,7 +294,7 @@ function initCharts() {
   }
 
   const clickOptions = {
-    ...chartDefaults,
+    ...buildChartDefaults(),
     onClick: chartClickHandler,
   };
 
@@ -230,7 +311,7 @@ function initCharts() {
           tension: 0.25,
         },
         {
-          label: "Total latency",
+          label: "Capture to save",
           data: [],
           borderColor: "#f0883e",
           backgroundColor: "rgba(240,136,62,0.15)",
@@ -376,7 +457,11 @@ async function refreshAll() {
       }
     }
     await refreshSummary();
-    status.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    status.textContent = `Updated ${new Date().toLocaleString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })}`;
   } catch (err) {
     status.textContent = `Refresh failed: ${err}`;
   }
@@ -409,6 +494,7 @@ scrubber.addEventListener("input", () => {
 
 async function bootstrap() {
   initCharts();
+  window.addEventListener("resize", scheduleChartResize);
   await loadTimeline();
 
   const url = new URL(window.location.href);

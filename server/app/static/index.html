@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
   <title>esp-cam dashboard</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
@@ -18,7 +19,7 @@
   <section class="cards" id="summary-cards">
     <article class="card"><span class="label">Captures</span><strong id="stat-count">—</strong></article>
     <article class="card"><span class="label">Avg capture</span><strong id="stat-capture">—</strong></article>
-    <article class="card"><span class="label">Avg latency</span><strong id="stat-latency">—</strong></article>
+    <article class="card"><span class="label">Avg capture-to-save</span><strong id="stat-latency">—</strong></article>
     <article class="card"><span class="label">Avg inference</span><strong id="stat-inference">—</strong></article>
   </section>
 
@@ -31,9 +32,9 @@
 
       <div id="timetravel" class="timetravel" hidden>
         <div class="timetravel-controls">
-          <button id="live-btn" type="button" class="btn btn-live" title="Jump to latest frame">Live</button>
-          <button id="prev-btn" type="button" class="btn" title="Older frame">&#9664;</button>
-          <button id="next-btn" type="button" class="btn" title="Newer frame">&#9654;</button>
+          <button id="live-btn" type="button" class="btn btn-live" title="Jump to latest frame" aria-label="Jump to latest frame">Live</button>
+          <button id="prev-btn" type="button" class="btn btn-step" title="Older frame" aria-label="Older frame">&#9664;</button>
+          <button id="next-btn" type="button" class="btn btn-step" title="Newer frame" aria-label="Newer frame">&#9654;</button>
         </div>
         <input id="scrubber" type="range" min="0" max="0" value="0" step="1" aria-label="Browse capture history">
         <p id="timetravel-label" class="timetravel-label">—</p>
@@ -46,14 +47,20 @@
     </section>
 
     <section class="panel charts-panel">
-      <h2>Latency timeline</h2>
-      <canvas id="latency-chart"></canvas>
+      <h2>Timing timeline</h2>
+      <div class="chart-wrap">
+        <canvas id="latency-chart"></canvas>
+      </div>
 
       <h2>Detection count</h2>
-      <canvas id="detection-chart"></canvas>
+      <div class="chart-wrap">
+        <canvas id="detection-chart"></canvas>
+      </div>
 
       <h2>Class distribution</h2>
-      <canvas id="class-chart"></canvas>
+      <div class="chart-wrap chart-wrap--compact">
+        <canvas id="class-chart"></canvas>
+      </div>
     </section>
   </main>
   <script src="/static/chart.umd.min.js"></script>
