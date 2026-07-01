@@ -3,13 +3,12 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-if [[ ! -d .venv ]]; then
-  python3 -m venv .venv
+if ! command -v uv >/dev/null 2>&1; then
+  echo "Install uv: curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+  exit 1
 fi
 
-# shellcheck disable=SC1091
-source .venv/bin/activate
-pip install -q -r requirements.txt
+uv sync
 
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8000}"
@@ -20,4 +19,4 @@ echo "Stats API:       http://${HOST}:${PORT}/api/stats/summary"
 echo "Set ESP APP_UPLOAD_URL to http://<this-machine-ip>:${PORT}/upload"
 echo "Use HTTP (not HTTPS) for local dev to skip SNTP on the device."
 
-exec uvicorn app.main:app --host "$HOST" --port "$PORT" --reload
+exec uv run uvicorn app.main:app --host "$HOST" --port "$PORT" --reload

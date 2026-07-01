@@ -46,10 +46,14 @@ Use your machine's LAN IP in the upload URL, not `localhost`.
 
 ## Server setup
 
+Requires [uv](https://docs.astral.sh/uv/) for Python package management.
+
 ```bash
 cd server
 ./run.sh
 ```
+
+`run.sh` runs `uv sync` to create/update `.venv` from `pyproject.toml` and `uv.lock`.
 
 - **Dashboard:** http://localhost:8000/
 - **Upload endpoint:** http://localhost:8000/upload
@@ -153,6 +157,8 @@ If the tunnel page is blank, make sure **both** `api` and `detector` are running
 main/              ESP-IDF app (WiFi, camera, SNTP, uploader)
 server/app/        FastAPI package (api, services, models, static dashboard)
 server/detector/   YOLO26 detection microservice (Docker)
+server/pyproject.toml, server/uv.lock   API dependencies (managed with uv)
+server/detector/pyproject.toml, uv.lock   Detector dependencies
 server/data/       SQLite database (created at runtime)
 server/captures/   JPEG files
 docker-compose.yml
