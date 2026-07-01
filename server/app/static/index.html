@@ -24,8 +24,22 @@
 
   <main class="layout">
     <section class="panel live-panel">
-      <h2>Latest capture</h2>
-      <img id="frame" alt="Latest capture" hidden>
+      <div class="panel-heading">
+        <h2>Capture viewer</h2>
+        <span id="view-mode" class="mode-badge mode-live">Live</span>
+      </div>
+
+      <div id="timetravel" class="timetravel" hidden>
+        <div class="timetravel-controls">
+          <button id="live-btn" type="button" class="btn btn-live" title="Jump to latest frame">Live</button>
+          <button id="prev-btn" type="button" class="btn" title="Older frame">&#9664;</button>
+          <button id="next-btn" type="button" class="btn" title="Newer frame">&#9654;</button>
+        </div>
+        <input id="scrubber" type="range" min="0" max="0" value="0" step="1" aria-label="Browse capture history">
+        <p id="timetravel-label" class="timetravel-label">—</p>
+      </div>
+
+      <img id="frame" alt="Camera capture" hidden>
       <p id="empty" class="empty">Waiting for first upload…</p>
       <dl id="meta" hidden></dl>
       <ul id="detections" hidden></ul>

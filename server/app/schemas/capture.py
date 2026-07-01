@@ -56,3 +56,18 @@ class CaptureListItem(BaseModel):
 class CaptureListResponse(BaseModel):
     count: int
     captures: list[CaptureListItem]
+
+
+class PaginatedCapturesResponse(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    captures: list[CaptureRead]
+
+
+class CaptureBrowseResponse(BaseModel):
+    capture: CaptureRead
+    index: int
+    total: int
+    prev_id: int | None = None
+    next_id: int | None = None

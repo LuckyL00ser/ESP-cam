@@ -5,14 +5,19 @@ services:
     ports:
       - "${PORT:-8000}:8000"
     environment:
+      HOST: 0.0.0.0
+      PORT: 8000
       DATABASE_PATH: /data/esp_cam.db
       CAPTURES_DIR: /data/captures
       DETECTOR_URL: http://detector:8001
-      CAPTURE_RETENTION_MINUTES: ${CAPTURE_RETENTION_MINUTES:-10}
+      CAPTURE_RETENTION_MINUTES: ${CAPTURE_RETENTION_MINUTES:-60}
       CAPTURE_CLEANUP_INTERVAL_SECONDS: ${CAPTURE_CLEANUP_INTERVAL_SECONDS:-60}
     volumes:
       - ./server/data:/data
       - ./server/captures:/data/captures
+      # Mount app source so UI/API updates apply after container restart (no image rebuild).
+      - ./server/app:/app/app:ro
+    command: ["sh", "-c", "uvicorn app.main:app --host $$HOST --port $$PORT --reload"]
     depends_on:
       detector:
         condition: service_healthy

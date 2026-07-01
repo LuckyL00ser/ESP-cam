@@ -154,6 +154,35 @@ class CaptureService:
             return None
         return self.to_read_model(capture)
 
+    def get_by_id(self, capture_id: int) -> CaptureRead | None:
+        capture = self.capture_repo.get_by_id(capture_id)
+        if capture is None:
+            return None
+        return self.to_read_model(capture)
+
+    def list_paginated(self, *, offset: int, limit: int) -> tuple[list[CaptureRead], int]:
+        total = self.capture_repo.count()
+        captures = self.capture_repo.list_paginated(offset=offset, limit=limit)
+        return [self.to_read_model(capture) for capture in captures], total
+
+    def get_browse_context(self, capture_id: int) -> dict | None:
+        capture = self.capture_repo.get_by_id(capture_id)
+        if capture is None or capture.id is None:
+            return None
+
+        total = self.capture_repo.count()
+        index = self.capture_repo.count_older_than(capture.received_at)
+        older = self.capture_repo.get_older_neighbor(capture)
+        newer = self.capture_repo.get_newer_neighbor(capture)
+
+        return {
+            "capture": self.to_read_model(capture),
+            "index": index,
+            "total": total,
+            "prev_id": older.id if older is not None else None,
+            "next_id": newer.id if newer is not None else None,
+        }
+
     def get_file_path(self, filename: str) -> Path | None:
         if filename.endswith("_annotated.jpg"):
             path = self.captures_dir / filename

@@ -11,6 +11,7 @@ from sqlmodel import Session
 
 from app.api.captures import router as captures_router
 from app.api.health import router as health_router
+from app.api.history import router as history_router
 from app.api.stats import router as stats_router
 from app.api.uploads import router as uploads_router
 from app.config import get_settings
@@ -52,6 +53,7 @@ def create_app() -> FastAPI:
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(health_router)
     app.include_router(uploads_router)
+    app.include_router(history_router)
     app.include_router(captures_router)
     app.include_router(stats_router)
 

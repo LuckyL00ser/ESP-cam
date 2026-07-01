@@ -59,13 +59,15 @@ cd server
 - **Upload endpoint:** http://localhost:8000/upload
 - **Stats API:** http://localhost:8000/api/stats/summary
 
+The dashboard includes **timetravel**: scrub through retained frames with the slider or prev/next buttons, click chart points to jump to a capture, or return to **Live** mode. Share a specific frame with `?id=<capture_id>` in the URL.
+
 Optional env vars:
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `DATABASE_PATH` | `server/data/esp_cam.db` | SQLite database file |
 | `CAPTURES_DIR` | `server/captures` | JPEG storage directory |
-| `CAPTURE_RETENTION_MINUTES` | `10` | Delete captures older than this |
+| `CAPTURE_RETENTION_MINUTES` | `60` | Delete captures older than this |
 | `CAPTURE_CLEANUP_INTERVAL_SECONDS` | `60` | How often cleanup runs |
 | `PORT` | `8000` | Server port |
 | `DETECTOR_URL` | _(unset)_ | YOLO detector base URL (set automatically in Docker Compose) |
@@ -117,6 +119,8 @@ Each capture is stored as a JPEG on disk with metadata in SQLite:
 - `inference_ms`, detections JSON — from YOLO after upload
 
 Stats endpoints: `/api/stats/summary`, `/api/stats/timeseries`, `/api/stats/classes`
+
+Browse endpoints: `/api/captures` (paginated history), `/api/captures/{id}` (frame + prev/next ids)
 
 ## Share the viewer remotely
 

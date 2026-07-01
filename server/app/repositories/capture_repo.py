@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlmodel import Session, select
+from sqlmodel import Session, col, func, select
 
 from app.models.tables import Capture, Detection
 
@@ -17,6 +17,9 @@ class CaptureRepository:
     def get_by_filename(self, filename: str) -> Capture | None:
         return self.session.exec(select(Capture).where(Capture.filename == filename)).first()
 
+    def get_by_id(self, capture_id: int) -> Capture | None:
+        return self.session.get(Capture, capture_id)
+
     def get_latest(self) -> Capture | None:
         statement = select(Capture).order_by(Capture.received_at.desc())
         return self.session.exec(statement).first()
@@ -26,6 +29,43 @@ class CaptureRepository:
         if limit is not None:
             statement = statement.limit(limit)
         return list(self.session.exec(statement).all())
+
+    def list_paginated(self, *, offset: int, limit: int) -> list[Capture]:
+        statement = (
+            select(Capture)
+            .order_by(Capture.received_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        return list(self.session.exec(statement).all())
+
+    def list_chronological(self, *, limit: int | None = None) -> list[Capture]:
+        statement = select(Capture).order_by(Capture.received_at.asc())
+        if limit is not None:
+            statement = statement.limit(limit)
+        return list(self.session.exec(statement).all())
+
+    def get_older_neighbor(self, capture: Capture) -> Capture | None:
+        statement = (
+            select(Capture)
+            .where(Capture.received_at < capture.received_at)
+            .order_by(Capture.received_at.desc())
+            .limit(1)
+        )
+        return self.session.exec(statement).first()
+
+    def get_newer_neighbor(self, capture: Capture) -> Capture | None:
+        statement = (
+            select(Capture)
+            .where(Capture.received_at > capture.received_at)
+            .order_by(Capture.received_at.asc())
+            .limit(1)
+        )
+        return self.session.exec(statement).first()
+
+    def count_older_than(self, received_at: datetime) -> int:
+        statement = select(func.count()).select_from(Capture).where(col(Capture.received_at) < received_at)
+        return int(self.session.exec(statement).one())
 
     def list_older_than(self, cutoff: datetime) -> list[Capture]:
         statement = select(Capture).where(Capture.received_at < cutoff)

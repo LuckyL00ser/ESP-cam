@@ -84,6 +84,92 @@ h2 { font-size: 1rem; margin-bottom: 0.75rem; }
   padding: 1rem;
 }
 
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.panel-heading h2 {
+  margin-bottom: 0;
+}
+
+.mode-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.mode-live {
+  color: var(--capture);
+  border-color: rgba(63, 185, 80, 0.45);
+  background: rgba(63, 185, 80, 0.12);
+}
+
+.mode-history {
+  color: var(--accent);
+  border-color: rgba(88, 166, 255, 0.45);
+  background: rgba(88, 166, 255, 0.12);
+}
+
+.timetravel {
+  margin-bottom: 0.85rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(13, 17, 23, 0.55);
+}
+
+.timetravel-controls {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #21262d;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-live.active {
+  border-color: rgba(63, 185, 80, 0.55);
+  background: rgba(63, 185, 80, 0.18);
+  color: var(--capture);
+}
+
+#scrubber {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.timetravel-label {
+  margin: 0.45rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
 #frame {
   width: 100%;
   max-height: 52vh;

@@ -14,8 +14,10 @@ class StatsSummary(BaseModel):
 
 
 class TimeseriesPoint(BaseModel):
+    id: int
     filename: str
     received_at: str
+    image_url: str
     capture_time_ms: float | None = None
     total_latency_ms: float | None = None
     inference_ms: float | None = None

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
+from pathlib import Path
 
 from sqlmodel import Session, select
 
@@ -68,10 +69,16 @@ class StatsService:
                     inference_ms = detection.inference_ms
                     detection_count = detection.detection_count
 
+            image_url = f"/captures/{capture.filename}"
+            if capture.annotated_path and Path(capture.annotated_path).is_file():
+                image_url = f"/captures/{Path(capture.annotated_path).name}"
+
             points.append(
                 TimeseriesPoint(
+                    id=capture.id or 0,
                     filename=capture.filename,
                     received_at=capture.received_at.isoformat(),
+                    image_url=image_url,
                     capture_time_ms=capture.capture_time_ms,
                     total_latency_ms=capture.total_latency_ms,
                     inference_ms=inference_ms,

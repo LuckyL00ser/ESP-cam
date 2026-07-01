@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
     upload_field_name: str = "image"
     max_upload_bytes: int = 5 * 1024 * 1024
-    capture_retention_minutes: int = 10
+    capture_retention_minutes: int = 60
     capture_cleanup_interval_seconds: int = 60
     detector_url: str = ""
     stats_timeseries_default_limit: int = 100
