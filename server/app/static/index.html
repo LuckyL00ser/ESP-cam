@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>esp-cam dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div>
+      <h1>esp-cam dashboard</h1>
+      <p class="subtitle">Live capture, latency metrics, and YOLO detections</p>
+    </div>
+    <p id="status" class="status">Starting…</p>
+  </header>
+
+  <section class="cards" id="summary-cards">
+    <article class="card"><span class="label">Captures</span><strong id="stat-count">—</strong></article>
+    <article class="card"><span class="label">Avg capture</span><strong id="stat-capture">—</strong></article>
+    <article class="card"><span class="label">Avg latency</span><strong id="stat-latency">—</strong></article>
+    <article class="card"><span class="label">Avg inference</span><strong id="stat-inference">—</strong></article>
+  </section>
+
+  <main class="layout">
+    <section class="panel live-panel">
+      <h2>Latest capture</h2>
+      <img id="frame" alt="Latest capture" hidden>
+      <p id="empty" class="empty">Waiting for first upload…</p>
+      <dl id="meta" hidden></dl>
+      <ul id="detections" hidden></ul>
+    </section>
+
+    <section class="panel charts-panel">
+      <h2>Latency timeline</h2>
+      <canvas id="latency-chart"></canvas>
+
+      <h2>Detection count</h2>
+      <canvas id="detection-chart"></canvas>
+
+      <h2>Class distribution</h2>
+      <canvas id="class-chart"></canvas>
+    </section>
+  </main>
+  <script src="/static/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

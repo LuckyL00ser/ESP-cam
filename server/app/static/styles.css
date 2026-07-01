@@ -1,0 +1,133 @@
+:root {
+  color-scheme: dark;
+  font-family: "SF Pro Text", system-ui, sans-serif;
+  --bg: #0d1117;
+  --panel: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --capture: #3fb950;
+  --latency: #f0883e;
+  --inference: #a371f7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 1.25rem;
+  background: radial-gradient(circle at top, #1f2937 0%, var(--bg) 45%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+h1, h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1rem; margin-bottom: 0.75rem; }
+
+.subtitle, .status, .empty {
+  color: var(--muted);
+}
+
+.subtitle { margin: 0.25rem 0 0; font-size: 0.95rem; }
+.status { margin: 0.35rem 0 0; font-size: 0.85rem; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.card .label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+}
+
+.card strong {
+  font-size: 1.35rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.2fr);
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+#frame {
+  width: 100%;
+  max-height: 52vh;
+  object-fit: contain;
+  background: #000;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin: 1rem 0 0;
+  font-size: 0.92rem;
+}
+
+dt { color: var(--muted); }
+dd { margin: 0; font-family: ui-monospace, monospace; }
+
+#detections {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+#detections li {
+  padding: 0.25rem 0;
+  font-family: ui-monospace, monospace;
+}
+
+#detections li.none {
+  color: var(--muted);
+  font-family: inherit;
+}
+
+.charts-panel canvas {
+  width: 100%;
+  max-height: 220px;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 960px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .layout { grid-template-columns: 1fr; }
+}

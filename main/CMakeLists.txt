@@ -1,0 +1,20 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "wifi_manager.c"
+        "camera_manager.c"
+        "time_sync.c"
+        "photo_uploader.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        esp32-camera
+        esp_wifi
+        nvs_flash
+        esp_http_client
+        esp_event
+        esp_netif
+        esp_psram
+        esp_timer
+        lwip
+        mbedtls
+)

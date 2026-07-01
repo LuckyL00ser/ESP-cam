@@ -1,0 +1,43 @@
+services:
+  api:
+    build:
+      context: ./server
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      DATABASE_PATH: /data/esp_cam.db
+      CAPTURES_DIR: /data/captures
+      DETECTOR_URL: http://detector:8001
+      CAPTURE_RETENTION_MINUTES: ${CAPTURE_RETENTION_MINUTES:-10}
+      CAPTURE_CLEANUP_INTERVAL_SECONDS: ${CAPTURE_CLEANUP_INTERVAL_SECONDS:-60}
+    volumes:
+      - ./server/data:/data
+      - ./server/captures:/data/captures
+    depends_on:
+      detector:
+        condition: service_healthy
+
+  detector:
+    build:
+      context: ./server/detector
+      args:
+        YOLO_MODEL: ${YOLO_MODEL:-yolo26m.pt}
+    ports:
+      - "${DETECTOR_PORT:-8001}:8001"
+    environment:
+      YOLO_MODEL: ${YOLO_MODEL:-yolo26m.pt}
+      YOLO_CONF: ${YOLO_CONF:-0.25}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 180s
+
+  tunnel:
+    profiles: ["tunnel"]
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://api:8000
+    depends_on:
+      api:
+        condition: service_started
